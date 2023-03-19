@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">MercadoLibre Cost Simulator</string>
+    <string name="cost_calculator">Cost calculator</string>
+    <string name="fixed_cost_and_taxes">Fixed cost and taxes</string>
+    <string name="required_field">required</string>
+
+    <string name="product_name">Product name</string>
+    <string name="product_cost">Product cost</string>
+    <string name="shipping_cost">Shipping cost</string>
+    <string name="fixed_cost">Fixed cost</string>
+    <string name="desired_utility">Desired utility</string>
+    <string name="sales_commission">Sales commission</string>
+    <string name="clasic16">16% clasic</string>
+    <string name="premium20">20% premium</string>
+    <string name="commission_for_sale">Commission for sale</string>
+    <string name="ret">RET</string>
+    <string name="ica">ICA</string>
+    <string name="selling_price">Selling price</string>
+    <string name="calculate">Calculate</string>
+
+</resources>
