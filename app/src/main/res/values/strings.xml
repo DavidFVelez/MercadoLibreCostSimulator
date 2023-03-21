@@ -2,7 +2,7 @@
     <string name="app_name">MercadoLibre Cost Simulator</string>
     <string name="cost_calculator">Cost calculator</string>
     <string name="fixed_cost_and_taxes">Fixed cost and taxes</string>
-    <string name="required_field">required</string>
+    <string name="required_field">required*</string>
 
     <string name="product_name">Product name</string>
     <string name="product_cost">Product cost</string>

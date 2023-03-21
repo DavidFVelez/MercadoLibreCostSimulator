@@ -4,78 +4,71 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.davidvelez.mercadolibrecostsimulator.databinding.ActivityCostCalculatorBinding
 import kotlin.math.round
 
 class CostCalculator : AppCompatActivity() {
 
     private lateinit var costCalculatorBinding: ActivityCostCalculatorBinding
+    private lateinit var costCalculatorViewModel: CostCalculatorViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         costCalculatorBinding = ActivityCostCalculatorBinding.inflate(layoutInflater)
         val view = costCalculatorBinding.root
         setContentView(view)
 
+        costCalculatorViewModel = ViewModelProvider(this)[CostCalculatorViewModel::class.java]
 
-        val icaValue = 1.5f
-        val retValue = 0.414f
-        costCalculatorBinding.icaEditText.setText(icaValue.toString())
-        costCalculatorBinding.retEditText.setText(retValue.toString())
-        costCalculatorBinding.fixedcostEditText.setText(" ")
-        costCalculatorBinding.sellingPriceEditText.setText(" ")
-        costCalculatorBinding.icaEditText.isEnabled = false
-        costCalculatorBinding.retEditText.isEnabled = false
-        costCalculatorBinding.fixedcostEditText.isEnabled = false
-        costCalculatorBinding.sellingPriceEditText.isEnabled = false
+        val fixedCostObserver = Observer<Int> { fixedCost ->
+            costCalculatorBinding.fixedcostEditText.setText("$ $fixedCost")
+        }
 
+        costCalculatorViewModel.fixedCost.observe(this, fixedCostObserver)
 
-        costCalculatorBinding.calculateButton.setOnClickListener {
-            val productName = costCalculatorBinding.productnameEditText.text.toString()
-            val productCost = costCalculatorBinding.productcostEditText.text.toString()
-            val shippingCost = costCalculatorBinding.shippingcostEditText.text.toString()
-            val desiredUtility = costCalculatorBinding.desiredutilityEditText.text.toString()
-            val limitFreePrice = 90000
-            var fixedCost: Int
-
-            if (productCost.isNotEmpty() && productCost.toInt() > 0) {
-
-                if (productCost.toInt() >= limitFreePrice) fixedCost = 0
-                else fixedCost = 2100
-                costCalculatorBinding.fixedcostEditText.setText("$ $fixedCost")
-                if (productName.isNotEmpty() &&
-                    productCost.isNotEmpty() &&
-                    shippingCost.isNotEmpty() &&
-                    desiredUtility.isNotEmpty()
-                ) {
-
-                    val sumAllCosts =
-                        productCost.toInt() + shippingCost.toInt() + fixedCost + desiredUtility.toInt()
-                    val salesComission = if (costCalculatorBinding.clasic16RadioButton.isChecked) 16
-                    else 20
-
-                    val calculatePrice =
-                        sumAllCosts / (1 - ((salesComission + retValue + icaValue) / 100))
-                    costCalculatorBinding.sellingPriceEditText.setText("$ " + (round(calculatePrice * 100) / 100).toString())
-                } else {
-
-                    Toast.makeText(
-                        applicationContext,
-                        "Invalid value. Please fill in the required fields",
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    costCalculatorBinding.sellingPriceEditText.setText("$ 0")
-
-                }
-
-            } else {
-                costCalculatorBinding.productcostEditText.error =
-                    "Invalid Value. Product cost must be greater than 0"
-                costCalculatorBinding.sellingPriceEditText.setText("$ 0")
-
-            }
-
+        val calculatePriceObserver = Observer<Float> { calculatePrice ->
+            // costCalculatorBinding.sellingPriceEditText.text = sellingPrice.toString()
+            costCalculatorBinding.sellingPriceEditText.setText("$ " + (round(calculatePrice * 100) / 100).toString())
 
         }
+        costCalculatorViewModel.calculatePrice.observe(this, calculatePriceObserver)
+
+        val errorMessageObserver = Observer<String> { errorMessage ->
+            Toast.makeText(
+                applicationContext,
+                "Invalid value. Please fill in the required fields",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            costCalculatorBinding.sellingPriceEditText.setText("$ 0")
+
+        }
+        costCalculatorViewModel.errorMessage.observe(this, errorMessageObserver)
+
+        val errorProductCostObserver = Observer<String> { errorProductCost ->
+            costCalculatorBinding.productcostEditText.error =
+                "Invalid Value. Product cost must be greater than 0"
+            costCalculatorBinding.sellingPriceEditText.setText("$ 0")
+
+        }
+        costCalculatorViewModel.errorProductCost.observe(this, errorProductCostObserver)
+
+
+        costCalculatorBinding.icaEditText.setText((1.5f).toString())
+        costCalculatorBinding.retEditText.setText((0.414f).toString())
+
+        costCalculatorBinding.calculateButton.setOnClickListener {
+            costCalculatorViewModel.calcularPrecioVenta(
+                costCalculatorBinding.productnameEditText.text.toString(),
+                costCalculatorBinding.productcostEditText.text.toString(),
+                costCalculatorBinding.shippingcostEditText.text.toString(),
+                costCalculatorBinding.desiredutilityEditText.text.toString(),
+                costCalculatorBinding.clasic16RadioButton.isChecked
+            )
+//
+        }
     }
+
 }
